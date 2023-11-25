@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardPostController;
-use App\Models\Category;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use Illuminate\Support\Facades\Route;
 
+use App\Models\Category;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 
@@ -22,56 +21,41 @@ use App\Http\Controllers\RegisterController;
 
 Route::get('/', function () {
     return view('home', [
-        "title" => 'Home',
-        "active" => 'home'
+        "title" => "Home",
+        "active" => "home"
     ]);
 });
 
 Route::get('/about', function () {
     return view('about', [
-        "title" => 'About',
-        "active" => 'about',
+        "title" => "About",
+        "active" => "about",
         "name" => 'Jimmy Hidayat',
-        "email" => 'jimmy.hidayat@gmail.com',
+        "email" => 'jimmy123@gmail.com',
         "image" => 'Wall E.jpg'
     ]);
 });
 
 
-Route::get('/blog', function () {
-    $blog_posts = [
-        [
-            "title" => 'Judul Post Pertama',
-            "slug" => 'Judul Post Pertama',
-            "author" => 'Jimmy Hidayat',
-            "body" => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur sint, laboriosam asperiores sit molestiae, odio ex nostrum nemo sed ipsam exercitationem? Cupiditate quod itaque quidem temporibus repellendus, quaerat ducimus. Nostrum!'
-        ],
-        [
-            "title" => 'Judul Post Kedua',
-            "slug" => 'Judul Post Kedua',
-            "author" => 'Jimmy Hidayat',
-            "body" => 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sapiente ipsam debitis culpa. Illum, quia hic ducimus rem, asperiores tempora explicabo expedita non, quae libero quaerat voluptatibus sequi sunt maxime numquam quisquam voluptatem alias nesciunt sed recusandae vitae aliquid voluptas nemo. Cumque, neque inventore assumenda corrupti magni ab consequuntur suscipit quia quaerat recusandae blanditiis mollitia doloribus aliquam sint ipsa laborum architecto error, enim modi voluptates facilis velit? Alias nulla qui dolore mollitia beatae nobis est, impedit libero magni hic distinctio dolorem maiores atque unde necessitatibus molestiae repellat, reiciendis laborum. Voluptas adipisci optio eos iure autem quasi, ipsum sunt quos porro dolore.'
-        ]
-    ];
 
-    return view('posts', [
-        "title" => "PostS",
-        "posts" => $blog_posts
-    ]);
-});
 Route::get('/posts', [PostController::class, 'index']);
-Route::get('/posts/{post:slug}', [PostController::class, 'show']);
+// halaman single post
+Route::get('posts/{post:slug}', [PostController::class, 'show']);
+
 Route::get('/categories', function () {
-    return view('category', [
+    return view('categories', [
         'title' => 'Post Categories',
-        "active" => 'categories',
+        'active' => 'categories', // untuk menandakan link mana yang sedang aktif
         'categories' => Category::all()
     ]);
 });
 
 Route::get('/login', [LoginController::class, 'index'])->name('login')->middleware('guest');
-Route::get('/login', [LoginController::class, 'authenticator']);
+
+Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout']);
+
+
 
 Route::get('/register', [RegisterController::class, 'index'])->middleware('guest');
 Route::post('/register', [RegisterController::class, 'store']);
@@ -80,5 +64,6 @@ Route::get('/dashboard', function() {
     return view('dashboard.index');
 })->middleware('auth');
 
-Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
+
 Route::get('/dashboard/posts/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
+Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
