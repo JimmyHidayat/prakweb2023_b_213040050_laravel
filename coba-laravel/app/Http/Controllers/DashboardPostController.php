@@ -16,8 +16,6 @@ class DashboardPostController extends Controller
             'posts' => Post::where('user_id', auth()->user()->id)->get()
         ]);
     }
-
-
     public function create()
     {
         return view('dashboard.posts.create', [
@@ -25,15 +23,20 @@ class DashboardPostController extends Controller
         ]);
     }
 
-
     public function store(Request $request)
     {
+
         $validatedData = $request->validate([
             'title' => 'required|max:255|min:3',
             'slug' => 'required|unique:posts',
             'category_id' => 'required',
+            'image' => 'image|file|max:10024',
             'body' => 'required'
         ]);
+
+        if ($request->file('image')) {
+            $validatedData['image'] = $request->file('image')->store('post-images');
+        }
 
         $validatedData['user_id'] = auth()->user()->id;
         $validatedData['excerpt'] = Str::limit(strip_tags($request->body), 200);
@@ -42,7 +45,6 @@ class DashboardPostController extends Controller
 
         return redirect('/dashboard/posts')->with('success', 'New Post has been added!');
     }
-
 
     public function show(Post $post)
     {
@@ -59,7 +61,6 @@ class DashboardPostController extends Controller
         ]);
     }
 
-
     public function update(Request $request, Post $post)
     {
         $validatedData = $request->validate([
@@ -70,6 +71,7 @@ class DashboardPostController extends Controller
 
         if ($request->slug != $post->slug) {
             $validatedData['slug'] = SlugService::createSlug(Post::class, 'slug', $request->title);
+            
         }
 
         $validatedData['user_id'] = auth()->user()->id;
@@ -81,7 +83,6 @@ class DashboardPostController extends Controller
         return redirect('/dashboard/posts')->with('success', 'Post has been updated!');
     }
 
-
     public function destroy(Post $post)
     {
         Post::destroy($post->id);
@@ -92,6 +93,6 @@ class DashboardPostController extends Controller
     public function checkSlug(Request $request)
     {
         $slug = SlugService::createSlug(Post::class, 'slug', $request->title);
-        return response()->json(['slug' => $slug]);
+        return response()->json(['slug' => $slug]) ;
     }
 }
